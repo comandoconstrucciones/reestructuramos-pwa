@@ -54,7 +54,7 @@ export function AppShell({
         </header>
       )}
       <SyncStatusBar />
-      <main className={cn("flex-1", !noPad && "p-4")}>{children}</main>
+      <main className={noPad ? "flex min-h-0 flex-1 flex-col" : "flex-1 p-4"}>{children}</main>
       {!hideNav && <BottomNav />}
     </div>
   );

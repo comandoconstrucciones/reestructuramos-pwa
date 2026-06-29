@@ -140,7 +140,7 @@ export function StepResult({ insp, update, finalize }: StepProps) {
                   update({ placardFinal: p, placardManual: true });
                 }}
                 className={cn(
-                  "touch-target flex flex-1 flex-col items-center justify-center rounded-xl border-4 px-2 py-4 text-center font-extrabold transition-all",
+                  "touch-target flex min-w-0 flex-1 flex-col items-center justify-center rounded-xl border-4 px-1 py-3 text-center font-extrabold transition-all",
                   selected ? "ring-4 ring-ink/40 ring-offset-2" : "opacity-60",
                 )}
                 style={{
@@ -149,8 +149,8 @@ export function StepResult({ insp, update, finalize }: StepProps) {
                   borderColor: selected ? meta.color : "transparent",
                 }}
               >
-                <span className="text-base leading-tight">{meta.label}</span>
-                <span className="text-xs font-semibold">{meta.sublabel}</span>
+                <span className="break-words text-xs leading-tight">{meta.label}</span>
+                <span className="mt-0.5 text-[10px] font-semibold leading-tight">{meta.sublabel}</span>
               </button>
             );
           })}

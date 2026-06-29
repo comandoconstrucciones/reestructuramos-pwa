@@ -193,7 +193,7 @@ export function MapHome() {
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative flex-1 min-h-0 w-full">
       <LeafletMap
         markers={markers}
         center={CARACAS_CENTER}

@@ -329,7 +329,7 @@ export default function InspeccionesPage() {
               onClick={() => setFilter(f.key)}
               aria-pressed={active}
               className={cn(
-                "flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold",
+                "flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold",
                 active
                   ? "border-brand bg-brand text-white"
                   : "border-slate-300 bg-white text-slate-600 active:bg-slate-100",

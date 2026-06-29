@@ -31,7 +31,7 @@ export function SeverityPicker({
                 : { borderColor: opt.color }
             }
           >
-            <span className="text-sm font-bold leading-tight">{opt.label}</span>
+            <span className="break-words text-xs font-bold leading-tight">{opt.label}</span>
           </button>
         );
       })}
