@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/*
+  Tema de CAMPO: claro por defecto (uso exterior, día), alto contraste,
+  tipografía grande, targets táctiles ≥48px. La marca es azul estructural;
+  los carteles usan el verde/ámbar/rojo universal.
+*/
+@theme {
+  /* Marca: azul-pizarra profundo (acción); encabezados casi negros (autoridad). */
+  --color-brand: #0c4a6e;        /* sky-900 — acción primaria, sobria */
+  --color-brand-dark: #082f49;
+  --color-brand-ink: #082f49;
+
+  /* Carteles: uso EXCLUSIVO para el resultado verde/amarillo/rojo (no en UI). */
+  --color-verde: #16a34a;        /* INSPECCIONADO / habitable     */
+  --color-verde-ink: #14532d;
+  --color-amarillo: #d97706;     /* USO RESTRINGIDO               */
+  --color-amarillo-ink: #7c2d12;
+  --color-rojo: #dc2626;         /* INSEGURO / prohibido          */
+  --color-rojo-ink: #7f1d1d;
+
+  --color-slate-canvas: #eef2f6; /* fondo de la app               */
+  --color-ink: #0f172a;          /* texto / encabezados           */
+  --color-line: #cbd5e1;         /* hairline técnico (slate-300)  */
+
+  /* Tipografía de ingeniería */
+  --font-sans: var(--font-plex-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "Cascadia Mono", Menlo, monospace;
+
+  /* Radios ajustados = precisión técnica (cascada a rounded-lg/xl/2xl) */
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+}
+
+:root {
+  color-scheme: light;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  font-size: 17px; /* base grande para legibilidad en campo */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--color-slate-canvas);
+}
+
+body {
+  background: var(--color-slate-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Datos numéricos / coordenadas / códigos en monoespaciada técnica. */
+.font-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Targets táctiles cómodos incluso con guantes */
+@utility touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Foco visible y accesible (AA) */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respeta a quien navega con movimiento reducido (QA siempre con reduce ON) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Leaflet: el contenedor debe tener altura explícita */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: #aadaff;
+  font: inherit;
+}

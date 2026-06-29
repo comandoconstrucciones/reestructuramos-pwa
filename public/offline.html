@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es-VE">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>reestructuramos — sin conexión</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f1f5f9; color: #0f172a;
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, monospace; }
+  header { background: #0f172a; color: #fff; padding: calc(env(safe-area-inset-top,0) + 14px) 16px 14px;
+    display: flex; align-items: center; gap: 10px; }
+  header .mark { width: 18px; height: 18px; border-radius: 4px;
+    background: linear-gradient(#16a34a 0 33%, #d97706 33% 66%, #dc2626 66% 100%); }
+  header .name { font-weight: 700; letter-spacing: .02em; font-size: 15px; }
+  header .net { margin-left: auto; font-size: 12px; color: #fbbf24; }
+  main { padding: 16px; max-width: 640px; margin: 0 auto; }
+  .banner { background: #fef3c7; color: #78350f; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 10px 12px; font-size: 13px; margin-bottom: 16px; }
+  .placard { border-radius: 12px; padding: 22px; text-align: center; color: #fff; }
+  .placard .l { font-size: 28px; font-weight: 800; letter-spacing: .02em; }
+  .placard .s { font-size: 13px; font-weight: 600; opacity: .95; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-top: 12px; }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+  .row:last-child { border-bottom: 0; }
+  .row .k { color: #64748b; }
+  .row .v { text-align: right; font-weight: 600; }
+  .finding { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 13px; }
+  .dot { width: 10px; height: 10px; border-radius: 99px; flex: none; }
+  .tl { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+  .chip { border-radius: 6px; color: #fff; font-weight: 700; font-size: 11px; padding: 4px 8px; }
+  a.btn { display: block; text-align: center; background: #0369a1; color: #fff; text-decoration: none;
+    border-radius: 8px; padding: 13px; font-weight: 700; margin-top: 16px; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: #475569; margin: 18px 0 6px; }
+  .muted { color: #64748b; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <span class="mark"></span>
+  <span class="name">reestructuramos</span>
+  <span class="net">● sin conexión</span>
+</header>
+<main id="content">
+  <div class="banner">Sin conexión. Mostrando datos guardados en este dispositivo.</div>
+  <p class="muted">Cargando…</p>
+</main>
+<script>
+(function () {
+  var PLACARD = {
+    verde:    { c: "#16a34a", l: "INSPECCIONADO",  s: "Ingreso permitido" },
+    amarillo: { c: "#d97706", l: "USO RESTRINGIDO", s: "Acceso limitado" },
+    rojo:     { c: "#dc2626", l: "INSEGURO",        s: "Prohibido el ingreso" },
+    none:     { c: "#64748b", l: "SIN CLASIFICAR",  s: "" }
+  };
+  var SEV = { ninguno: "#64748b", leve: "#16a34a", moderado: "#d97706", severo: "#dc2626" };
+  var content = document.getElementById("content");
+
+  function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+  function fmt(iso) { if (!iso) return "—"; try { return new Date(iso).toLocaleString("es-VE", { dateStyle: "medium", timeStyle: "short" }); } catch (e) { return iso; } }
+  function placeName(b, insp) {
+    if (b && b.name) return b.name; if (b && b.address) return b.address;
+    var lat = (insp && insp.lat) != null ? insp.lat : (b && b.lat); var lng = (insp && insp.lng) != null ? insp.lng : (b && b.lng);
+    if (lat != null && lng != null) return lat.toFixed(5) + ", " + lng.toFixed(5);
+    return "Ubicación sin registrar";
+  }
+  function openDB() { return new Promise(function (res, rej) { var r = indexedDB.open("reestructuramos"); r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; }); }
+  function getAll(db, store) { return new Promise(function (res) { try { var rq = db.transaction(store, "readonly").objectStore(store).getAll(); rq.onsuccess = function () { res(rq.result || []); }; rq.onerror = function () { res([]); }; } catch (e) { res([]); } }); }
+  function get(db, store, key) { return new Promise(function (res) { try { var rq = db.transaction(store, "readonly").objectStore(store).get(key); rq.onsuccess = function () { res(rq.result || null); }; rq.onerror = function () { res(null); }; } catch (e) { res(null); } }); }
+
+  function placardEl(p) {
+    var m = PLACARD[p] || PLACARD.none;
+    return '<div class="placard" style="background:' + m.c + '"><div class="l">' + m.l + '</div><div class="s">' + m.s + '</div></div>';
+  }
+  function row(k, v) { return '<div class="row"><span class="k">' + esc(k) + '</span><span class="v">' + esc(v) + '</span></div>'; }
+
+  function renderInspection(insp) {
+    if (!insp) return notFound();
+    var b = insp.building || {};
+    var html = placardEl(insp.placardFinal || "none");
+    html += '<div class="card">' +
+      row("Edificio", placeName(b, insp)) +
+      row("Fecha", fmt(insp.inspectedAt)) +
+      row("Nivel", insp.evaluationLevel === "detallada" ? "Detallada" : "Rápida") +
+      (insp.estimatedDamageBand ? row("Daño global", insp.estimatedDamageBand + " %") : "") +
+      (insp.lat != null ? row("Coordenadas", insp.lat.toFixed(5) + ", " + insp.lng.toFixed(5)) : "") +
+      (insp.entryRestrictions ? row("Restricciones", insp.entryRestrictions) : "") +
+      (insp.inspectorSignature ? row("Inspector", insp.inspectorSignature) : "") +
+      '</div>';
+    var fs = (insp.findings || []).filter(function (f) { return f.severity && f.severity !== "ninguno"; });
+    if (fs.length) {
+      html += '<h2>Hallazgos</h2><div class="card">';
+      fs.forEach(function (f) {
+        html += '<div class="finding"><span class="dot" style="background:' + (SEV[f.severity] || "#64748b") + '"></span>' +
+          esc(f.element) + ' — ' + esc(f.severity) + '</div>';
+      });
+      html += '</div>';
+    }
+    if (insp.generalComments) html += '<h2>Comentarios</h2><div class="card muted">' + esc(insp.generalComments) + '</div>';
+    return html;
+  }
+
+  function renderBuilding(list) {
+    if (!list || !list.length) return notFound();
+    list.sort(function (a, b) { return (b.inspectedAt || "").localeCompare(a.inspectedAt || ""); });
+    var cur = list[0]; var b = cur.building || {};
+    var html = '<h2>Estado actual</h2>' + placardEl(cur.placardFinal || "none") +
+      '<div class="card">' + row("Edificio", placeName(b, cur)) + row("Última inspección", fmt(cur.inspectedAt)) + '</div>';
+    html += '<h2>Historial (' + list.length + ')</h2><div class="card">';
+    list.forEach(function (i) {
+      var m = PLACARD[i.placardFinal] || PLACARD.none;
+      html += '<div class="tl"><span class="chip" style="background:' + m.c + '">' + m.l + '</span><span class="muted">' + fmt(i.inspectedAt) + '</span></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function notFound() {
+    return '<div class="card"><strong>Sin registros locales</strong><p class="muted">No hay datos de esta página guardados en este dispositivo. Conéctate a internet para cargarla.</p></div>';
+  }
+
+  function shell(inner) {
+    return '<div class="banner">Sin conexión. Mostrando datos guardados en este dispositivo.</div>' + inner +
+      '<a class="btn" href="/">Ir al mapa</a>';
+  }
+
+  (async function () {
+    var path = location.pathname;
+    var inner;
+    try {
+      var db = await openDB();
+      var mInsp = path.match(/^\/inspeccion\/([^/]+)$/);
+      var mEdif = path.match(/^\/edificio\/([^/]+)$/);
+      if (mInsp && mInsp[1] !== "nueva") {
+        inner = renderInspection(await get(db, "inspections", decodeURIComponent(mInsp[1])));
+      } else if (mEdif) {
+        var id = decodeURIComponent(mEdif[1]);
+        var all = await getAll(db, "inspections");
+        inner = renderBuilding(all.filter(function (i) { return i.buildingId === id && i.status === "complete"; }));
+      } else {
+        inner = '<div class="card"><strong>Estás sin conexión</strong><p class="muted">Esta página no está disponible offline.</p></div>';
+      }
+    } catch (e) {
+      inner = '<div class="card"><strong>Estás sin conexión</strong><p class="muted">No se pudo leer el almacenamiento local.</p></div>';
+    }
+    content.innerHTML = shell(inner);
+  })();
+})();
+</script>
+</body>
+</html>
