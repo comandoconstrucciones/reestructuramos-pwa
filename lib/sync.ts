@@ -128,6 +128,7 @@ async function pushInspection(insp: Inspection, uid: string): Promise<void> {
         caption: photo.caption ?? null,
         annotation_json: photo.annotationJson ?? null,
         crack_width_mm: photo.crackWidthMm ?? null,
+        ai_classification: photo.aiClassification ?? null,
       },
       { onConflict: "id" },
     );

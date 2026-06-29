@@ -30,7 +30,11 @@ export type IconName =
   | "user"
   | "mail"
   | "logout"
-  | "level";
+  | "level"
+  | "ruler"
+  | "mic"
+  | "compass"
+  | "sparkles";
 
 const PATHS: Record<IconName, ReactNode> = {
   map: (
@@ -152,6 +156,30 @@ const PATHS: Record<IconName, ReactNode> = {
       <rect x="2" y="8" width="20" height="8" rx="1.5" />
       <circle cx="12" cy="12" r="2" />
       <path d="M7 10v4M17 10v4" />
+    </>
+  ),
+  ruler: (
+    <>
+      <path d="M3 16.5L16.5 3l4.5 4.5L7.5 21z" />
+      <path d="M7 11l2 2M11 7l2 2M9 13l1.5 1.5M13 9l1.5 1.5" />
+    </>
+  ),
+  mic: (
+    <>
+      <rect x="9" y="3" width="6" height="11" rx="3" />
+      <path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8" />
+    </>
+  ),
+  compass: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M15.5 8.5l-2.2 4.8-4.8 2.2 2.2-4.8z" />
+    </>
+  ),
+  sparkles: (
+    <>
+      <path d="M12 3l1.7 4.5L18 9.2l-4.3 1.7L12 15l-1.7-4.1L6 9.2l4.3-1.7z" />
+      <path d="M18.5 14l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" />
     </>
   ),
 };

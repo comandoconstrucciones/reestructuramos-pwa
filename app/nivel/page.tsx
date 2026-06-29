@@ -2,10 +2,11 @@
 import { AppShell } from "@/components/AppShell";
 import { Card, CardTitle } from "@/components/ui";
 import { Inclinometer } from "@/components/Inclinometer";
+import { Compass } from "@/components/Compass";
 
 export default function NivelPage() {
   return (
-    <AppShell title="Nivel y plomada" back>
+    <AppShell title="Nivel, plomada y brújula" back>
       <div className="mx-auto flex max-w-lg flex-col gap-4">
         <Card>
           <CardTitle>Mide el desplome con tu teléfono</CardTitle>
@@ -15,7 +16,12 @@ export default function NivelPage() {
           </p>
         </Card>
         <Card>
+          <CardTitle className="mb-3">Nivel y plomada</CardTitle>
           <Inclinometer />
+        </Card>
+        <Card>
+          <CardTitle className="mb-3">Orientación (brújula)</CardTitle>
+          <Compass />
         </Card>
       </div>
     </AppShell>

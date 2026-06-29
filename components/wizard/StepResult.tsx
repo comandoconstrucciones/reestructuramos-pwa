@@ -14,6 +14,7 @@ import {
   TextInput,
   Toggle,
 } from "@/components/ui";
+import { DictateButton } from "@/components/DictateButton";
 import { PLACARD_META, suggestPlacard } from "@/lib/placard";
 import { DETAILED_EVAL_OPTIONS } from "@/lib/catalog";
 import { finalizeInspection, getFlag, setFlag } from "@/lib/db";
@@ -230,6 +231,15 @@ export function StepResult({ insp, update, finalize }: StepProps) {
             }}
             placeholder="Notas del inspector…"
           />
+          <div className="mt-2">
+            <DictateButton
+              onText={(t) => {
+                const next = comments ? `${comments} ${t}` : t;
+                setComments(next);
+                update({ generalComments: next });
+              }}
+            />
+          </div>
         </Field>
       </Card>
 
