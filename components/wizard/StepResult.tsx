@@ -149,8 +149,10 @@ export function StepResult({ insp, update, finalize }: StepProps) {
                   borderColor: selected ? meta.color : "transparent",
                 }}
               >
-                <span className="break-words text-xs leading-tight">{meta.label}</span>
-                <span className="mt-0.5 text-[10px] font-semibold leading-tight">{meta.sublabel}</span>
+                <span className="w-full break-words text-[11px] leading-tight">{meta.label}</span>
+                <span className="mt-0.5 w-full break-words text-[10px] font-semibold leading-tight">
+                  {meta.sublabel}
+                </span>
               </button>
             );
           })}
