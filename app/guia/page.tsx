@@ -3,7 +3,9 @@
 // Tres secciones por pestañas (patrones de daño, árbol de decisión, glosario).
 // Todo se sirve desde catálogos locales (@/lib/catalog) — funciona sin red.
 import { useState } from "react";
+import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { DAMAGE_PATTERNS } from "@/lib/catalog";
 import { DamagePatternCard } from "@/components/guide/DamagePatternCard";
@@ -26,6 +28,22 @@ export default function GuiaPage() {
         <p className="text-sm text-slate-500">
           Referencia rápida para la inspección. Disponible sin conexión.
         </p>
+
+        <Link
+          href="/nivel"
+          className="flex items-center gap-3 rounded-xl border border-line bg-white p-3 active:bg-slate-50"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-50 text-brand">
+            <Icon name="level" size={22} />
+          </span>
+          <span className="flex-1">
+            <span className="block font-semibold text-ink">Nivel y plomada</span>
+            <span className="block text-sm text-slate-500">
+              Mide el desplome de columnas/muros con el teléfono
+            </span>
+          </span>
+          <Icon name="chevronRight" size={20} className="text-slate-400" />
+        </Link>
 
         <div
           role="tablist"

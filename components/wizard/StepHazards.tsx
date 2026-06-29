@@ -1,15 +1,28 @@
 "use client";
-import { useEffect } from "react";
-import { Card, CardTitle, SeverityPicker } from "@/components/ui";
+import { useEffect, useState } from "react";
+import { Button, Card, CardTitle, Icon, SeverityPicker } from "@/components/ui";
 import { PhotoCapture } from "@/components/PhotoCapture";
+import { Inclinometer } from "@/components/Inclinometer";
 import { GENERAL_HAZARDS } from "@/lib/catalog";
 import { newId } from "@/lib/id";
 import type { Finding, Severity } from "@/lib/types";
 import type { StepProps } from "./types";
 
 export function StepHazards({ insp, update }: StepProps) {
+  const [measuring, setMeasuring] = useState(false);
+
   const findingFor = (element: string): Finding | undefined =>
     insp.findings.find((f) => f.category === "peligro_general" && f.element === element);
+
+  function addNote(element: string, text: string) {
+    update((cur) => ({
+      findings: cur.findings.map((f) =>
+        f.category === "peligro_general" && f.element === element
+          ? { ...f, notes: [f.notes?.trim(), text].filter(Boolean).join(" · ") }
+          : f,
+      ),
+    }));
+  }
 
   function setSeverity(element: string, severity: Severity) {
     // Forma función: opera sobre la inspección MÁS FRESCA de Dexie, así no se
@@ -72,6 +85,25 @@ export function StepHazards({ insp, update }: StepProps) {
             <CardTitle className="text-base">{h.label}</CardTitle>
             {h.help && <p className="mb-3 mt-0.5 text-sm text-slate-500">{h.help}</p>}
             <SeverityPicker value={sev} onChange={(s) => setSeverity(h.element, s)} />
+            {h.element === "inclinacion" && (
+              <div className="mt-3 border-t border-slate-100 pt-3">
+                {f?.notes && (
+                  <p className="mb-2 text-sm font-semibold text-brand-ink">{f.notes}</p>
+                )}
+                {measuring ? (
+                  <Inclinometer
+                    onCapture={(t) => {
+                      addNote("inclinacion", t);
+                      setMeasuring(false);
+                    }}
+                  />
+                ) : (
+                  <Button variant="secondary" size="md" onClick={() => setMeasuring(true)}>
+                    <Icon name="level" size={18} /> Medir con el teléfono
+                  </Button>
+                )}
+              </div>
+            )}
             {hasEvidence && (
               <div className="mt-3 border-t border-slate-100 pt-3">
                 <p className="mb-2 text-sm font-semibold text-slate-600">

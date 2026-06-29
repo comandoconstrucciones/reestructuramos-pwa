@@ -29,7 +29,8 @@ export type IconName =
   | "trash"
   | "user"
   | "mail"
-  | "logout";
+  | "logout"
+  | "level";
 
 const PATHS: Record<IconName, ReactNode> = {
   map: (
@@ -146,6 +147,13 @@ const PATHS: Record<IconName, ReactNode> = {
     </>
   ),
   logout: <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />,
+  level: (
+    <>
+      <rect x="2" y="8" width="20" height="8" rx="1.5" />
+      <circle cx="12" cy="12" r="2" />
+      <path d="M7 10v4M17 10v4" />
+    </>
+  ),
 };
 
 export function Icon({
