@@ -101,17 +101,19 @@ export function Inclinometer({ onCapture }: { onCapture?: (text: string) => void
     }
   }
 
-  const color = angle < 1 ? "#16a34a" : angle <= 3 ? "#d97706" : "#dc2626";
+  // Umbrales con holgura (el sensor tiene ±0.5–1° y un leve desplome es normal):
+  // verde <2° · ámbar 2–5° · rojo >5°.
+  const color = angle < 2 ? "#16a34a" : angle <= 5 ? "#d97706" : "#dc2626";
   const label =
     mode === "plomada"
-      ? angle < 1
+      ? angle < 2
         ? "A plomo"
-        : angle <= 3
+        : angle <= 5
           ? "Desplome leve"
           : "Fuera de plomo"
-      : angle < 1
+      : angle < 2
         ? "Nivelado"
-        : angle <= 3
+        : angle <= 5
           ? "Ligera inclinación"
           : "Inclinación marcada";
 
