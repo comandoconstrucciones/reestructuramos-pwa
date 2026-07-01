@@ -34,7 +34,8 @@ export type IconName =
   | "ruler"
   | "mic"
   | "compass"
-  | "sparkles";
+  | "sparkles"
+  | "sun";
 
 const PATHS: Record<IconName, ReactNode> = {
   map: (
@@ -180,6 +181,12 @@ const PATHS: Record<IconName, ReactNode> = {
     <>
       <path d="M12 3l1.7 4.5L18 9.2l-4.3 1.7L12 15l-1.7-4.1L6 9.2l4.3-1.7z" />
       <path d="M18.5 14l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" />
+    </>
+  ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
     </>
   ),
 };

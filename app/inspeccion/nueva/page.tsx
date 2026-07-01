@@ -11,6 +11,7 @@ import {
   patchInspection,
 } from "@/lib/db";
 import { useSyncStore } from "@/lib/store";
+import { useWakeLock } from "@/lib/useWakeLock";
 import type { Inspection } from "@/lib/types";
 import { WIZARD_TOTAL, type InspUpdate } from "@/components/wizard/types";
 import { WizardProgress } from "@/components/wizard/WizardProgress";
@@ -25,6 +26,7 @@ type Phase = "loading" | "choose" | "active";
 
 export default function NuevaInspeccionPage() {
   const [phase, setPhase] = useState<Phase>("loading");
+  useWakeLock(phase === "active"); // pantalla encendida mientras se inspecciona
   const [recentDraft, setRecentDraft] = useState<Inspection | null>(null);
   const [insp, setInsp] = useState<Inspection | null>(null);
 

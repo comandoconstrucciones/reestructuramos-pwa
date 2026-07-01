@@ -93,3 +93,19 @@ body {
   background: #aadaff;
   font: inherit;
 }
+
+/* Modo sol: mayor contraste y texto más grande para lectura bajo luz directa.
+   El font-size en rem escala toda la UI; se oscurecen los textos apagados. */
+html[data-sun="1"] {
+  font-size: 19px;
+  --color-line: #94a3b8;
+}
+html[data-sun="1"] .text-slate-400 {
+  color: #475569;
+}
+html[data-sun="1"] .text-slate-500 {
+  color: #334155;
+}
+html[data-sun="1"] .text-slate-600 {
+  color: #1e293b;
+}

@@ -15,6 +15,7 @@ import {
   Toggle,
 } from "@/components/ui";
 import { DictateButton } from "@/components/DictateButton";
+import { success, tap, warn } from "@/lib/haptics";
 import { PLACARD_META, suggestPlacard } from "@/lib/placard";
 import { DETAILED_EVAL_OPTIONS } from "@/lib/catalog";
 import { finalizeInspection, getFlag, setFlag } from "@/lib/db";
@@ -90,12 +91,16 @@ export function StepResult({ insp, update, finalize }: StepProps) {
 
   async function handleFinalize() {
     setShowErrors(true);
-    if (!canFinalize || finalizing) return;
+    if (!canFinalize || finalizing) {
+      if (!canFinalize) warn();
+      return;
+    }
     setFinalizing(true);
     try {
       // Drena la cola de autosave y finaliza atómicamente (prop del orquestador).
       if (finalize) await finalize();
       else await finalizeInspection(insp.clientUuid);
+      success();
       router.replace(`/inspeccion/${insp.clientUuid}`);
     } catch {
       setFinalizing(false);
@@ -138,6 +143,7 @@ export function StepResult({ insp, update, finalize }: StepProps) {
                 onClick={() => {
                   setShowErrors(false);
                   update({ placardFinal: p, placardManual: true });
+                  tap();
                 }}
                 className={cn(
                   "touch-target flex min-w-0 flex-1 flex-col items-center justify-center rounded-xl border-4 px-1 py-3 text-center font-extrabold transition-all",

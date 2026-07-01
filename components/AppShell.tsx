@@ -6,6 +6,8 @@ import { cn } from "@/lib/cn";
 import { Icon } from "./ui/Icon";
 import { SyncStatusBar } from "./SyncStatusBar";
 import { BottomNav } from "./BottomNav";
+import { InstallPrompt } from "./InstallPrompt";
+import { SunModeToggle } from "./SunModeToggle";
 
 /** Marco común: barra superior + estado de sync + contenido + navegación inferior. */
 export function AppShell({
@@ -43,6 +45,7 @@ export function AppShell({
             </button>
           )}
           <h1 className="flex-1 truncate py-3 text-base font-semibold tracking-tight">{title}</h1>
+          <SunModeToggle />
           <span
             className={cn(
               "h-2.5 w-2.5 rounded-full ring-2 ring-white/20",
@@ -54,6 +57,7 @@ export function AppShell({
         </header>
       )}
       <SyncStatusBar />
+      <InstallPrompt />
       <main className={noPad ? "flex min-h-0 flex-1 flex-col" : "flex-1 p-4"}>{children}</main>
       {!hideNav && <BottomNav />}
     </div>

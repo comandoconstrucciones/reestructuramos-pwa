@@ -5,6 +5,7 @@ import { addPhoto, db, deletePhoto } from "@/lib/db";
 import { compressImage, blobToDataUrl } from "@/lib/image";
 import { stampProvenance } from "@/lib/stamp";
 import { getCurrentPosition } from "@/lib/geo";
+import { tapStrong, warn } from "@/lib/haptics";
 import { newId } from "@/lib/id";
 import type { AnnotationData, Photo } from "@/lib/types";
 import { AnnotationCanvas } from "./AnnotationCanvas";
@@ -86,7 +87,9 @@ export function PhotoCapture({
         syncStatus: "pending",
       };
       await addPhoto(photo);
+      tapStrong();
     } catch {
+      warn();
       setErr("No se pudo guardar la foto. Verifica el almacenamiento e intenta de nuevo.");
     } finally {
       setBusy(false);

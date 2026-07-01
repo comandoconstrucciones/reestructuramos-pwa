@@ -1,6 +1,7 @@
 "use client";
 import { cn } from "@/lib/cn";
 import { SEVERITY_OPTIONS } from "@/lib/catalog";
+import { tap } from "@/lib/haptics";
 import type { Severity } from "@/lib/types";
 
 export function SeverityPicker({
@@ -20,7 +21,10 @@ export function SeverityPicker({
             type="button"
             role="radio"
             aria-checked={isSel}
-            onClick={() => onChange(opt.value)}
+            onClick={() => {
+              onChange(opt.value);
+              tap();
+            }}
             className={cn(
               "touch-target flex flex-col items-center justify-center rounded-xl border-2 px-1 py-2 text-center",
               isSel ? "text-white" : "bg-white text-ink",

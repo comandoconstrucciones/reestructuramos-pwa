@@ -45,6 +45,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es-VE" className={`${plexSans.variable} ${plexMono.variable}`}>
       <body className="min-h-dvh">
+        {/* Aplica el modo sol antes de pintar (evita parpadeo). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('sunmode')==='1')document.documentElement.dataset.sun='1'}catch(e){}`,
+          }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>
