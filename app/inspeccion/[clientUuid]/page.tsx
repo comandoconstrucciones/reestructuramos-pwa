@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { Button, Card, CardTitle, Icon, PlacardBadge, Spinner } from "@/components/ui";
 import { PhotoGallery } from "@/components/result/PhotoGallery";
 import { PrintablePlacard } from "@/components/result/PrintablePlacard";
+import { ShareButton } from "@/components/ShareButton";
 import {
   CONSTRUCTION_TYPE_OPTIONS,
   DAMAGE_BAND_OPTIONS,
@@ -162,6 +163,16 @@ export default function InspectionResultPage() {
             <Icon name="printer" size={18} /> Cartel para imprimir
           </Button>
         </div>
+        <ShareButton
+          className="w-full"
+          label="Compartir estado del edificio"
+          text="Estado de seguridad de este edificio tras el sismo (reestructuramos):"
+          url={
+            typeof window !== "undefined"
+              ? `${window.location.origin}/edificio/${inspection.buildingId}`
+              : undefined
+          }
+        />
 
         {/* Estado de sincronización */}
         <Card className="flex items-center gap-3">

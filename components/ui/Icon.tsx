@@ -35,7 +35,8 @@ export type IconName =
   | "mic"
   | "compass"
   | "sparkles"
-  | "sun";
+  | "sun"
+  | "share";
 
 const PATHS: Record<IconName, ReactNode> = {
   map: (
@@ -189,6 +190,7 @@ const PATHS: Record<IconName, ReactNode> = {
       <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
     </>
   ),
+  share: <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" />,
 };
 
 export function Icon({

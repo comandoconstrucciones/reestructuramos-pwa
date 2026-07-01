@@ -7,8 +7,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import type { Map as LeafletMapHandle } from "leaflet";
 
-import { getFlag, listInspections, listRemoteInspections } from "@/lib/db";
+import { getFlag, setFlag, listInspections, listRemoteInspections } from "@/lib/db";
 import { triggerSync } from "@/lib/sync";
+import { getSupabase } from "@/lib/supabase";
 import { useSyncStore } from "@/lib/store";
 import { PLACARD_META } from "@/lib/placard";
 import type { Placard } from "@/lib/types";
@@ -101,6 +102,27 @@ export function MapHome() {
   // Al montar: refrescar datos del mapa + cola de sync (seguro offline).
   useEffect(() => {
     triggerSync();
+  }, []);
+
+  // Contador en vivo (momentum): total de inspecciones públicas, cacheado para
+  // mostrarlo también offline.
+  const [total, setTotal] = useState<number | null>(null);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const cached = await getFlag("map_total");
+      if (active && typeof cached === "number") setTotal(cached);
+      const sb = getSupabase();
+      if (!sb || (typeof navigator !== "undefined" && !navigator.onLine)) return;
+      const { count } = await sb.from("inspections_public").select("id", { count: "exact", head: true });
+      if (active && typeof count === "number") {
+        setTotal(count);
+        await setFlag("map_total", count);
+      }
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const markers = useMemo<MapMarker[]>(() => {
@@ -260,6 +282,11 @@ export function MapHome() {
 
         {/* Leyenda de colores (esquina inferior izquierda) */}
         <div className="pointer-events-auto absolute bottom-4 left-3 rounded-2xl border border-slate-200 bg-white/95 px-3 py-2 shadow-md">
+          {total != null && total > 0 && (
+            <p className="mb-1 font-data text-sm font-bold text-ink">
+              {total.toLocaleString("es-VE")} inspecciones
+            </p>
+          )}
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Carteles</p>
           <ul className="flex flex-col gap-1">
             {LEGEND.map((l) => (

@@ -17,11 +17,14 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const DESC =
+  "Evalúa la seguridad de edificios tras el sismo (ATC-20 · COVENIN 1756). Gratis, sin cuenta y funciona sin conexión.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://app.reestructuramos.com"),
   applicationName: "reestructuramos",
   title: "reestructuramos — Inspección estructural post-sismo",
-  description:
-    "Evaluación rápida de seguridad estructural de edificios después de un terremoto (ATC-20 adaptado a Venezuela). Funciona sin conexión.",
+  description: DESC,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -31,6 +34,19 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icon.png",
     apple: "/apple-icon-180.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_VE",
+    url: "https://app.reestructuramos.com",
+    siteName: "reestructuramos",
+    title: "reestructuramos — Inspección estructural post-sismo",
+    description: DESC,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "reestructuramos — Inspección estructural post-sismo",
+    description: DESC,
   },
 };
 
