@@ -43,13 +43,11 @@ interface RemoteRow {
   placard_final: Placard | null;
   inspected_at: string;
   evaluation_level: EvaluationLevel;
-  buildings?: {
-    name: string | null;
-    address: string | null;
-    construction_type: string | null;
-    occupancy_type: string | null;
-    year_built: number | null;
-  } | null;
+  building_name: string | null;
+  address: string | null;
+  construction_type: string | null;
+  occupancy_type: string | null;
+  year_built: number | null;
 }
 
 // --- Helpers de presentación ----------------------------------------------
@@ -105,9 +103,9 @@ export function BuildingHistory({ id }: { id: string }) {
     (async () => {
       try {
         const { data, error } = await sb
-          .from("inspections")
+          .from("inspections_public")
           .select(
-            "id, client_uuid, placard_final, inspected_at, evaluation_level, buildings(name,address,construction_type,occupancy_type,year_built)",
+            "id, client_uuid, placard_final, inspected_at, evaluation_level, building_name, address, construction_type, occupancy_type, year_built",
           )
           .eq("building_id", id)
           .order("inspected_at", { ascending: false });
@@ -149,17 +147,13 @@ export function BuildingHistory({ id }: { id: string }) {
         inspectedAt: r.inspected_at,
         evaluationLevel: r.evaluation_level,
         local: false,
-        building: r.buildings
-          ? {
-              name: r.buildings.name ?? undefined,
-              address: r.buildings.address ?? undefined,
-              constructionType:
-                (r.buildings.construction_type as Building["constructionType"]) ?? undefined,
-              occupancyType:
-                (r.buildings.occupancy_type as Building["occupancyType"]) ?? undefined,
-              yearBuilt: r.buildings.year_built ?? undefined,
-            }
-          : undefined,
+        building: {
+          name: r.building_name ?? undefined,
+          address: r.address ?? undefined,
+          constructionType: (r.construction_type as Building["constructionType"]) ?? undefined,
+          occupancyType: (r.occupancy_type as Building["occupancyType"]) ?? undefined,
+          yearBuilt: r.year_built ?? undefined,
+        },
       });
     }
 

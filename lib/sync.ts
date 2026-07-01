@@ -224,10 +224,12 @@ export async function pullMapData(): Promise<void> {
   if (!sb) return;
   if (typeof navigator !== "undefined" && !navigator.onLine) return;
   try {
+    // Lee de la VISTA pública (solo columnas seguras); nunca de la tabla base,
+    // que expone firma/comentarios/inspector_id y queda restringida al dueño.
     const { data, error } = await sb
-      .from("inspections")
+      .from("inspections_public")
       .select(
-        "id, lat, lng, placard_final, evaluation_level, inspected_at, buildings(name, address, construction_type, is_essential)",
+        "id, lat, lng, placard_final, evaluation_level, inspected_at, building_name, address, construction_type, is_essential",
       )
       .not("lat", "is", null)
       .order("inspected_at", { ascending: false })
@@ -236,22 +238,19 @@ export async function pullMapData(): Promise<void> {
     const now = Date.now();
     const items: RemoteInspection[] = data
       .filter((r): r is typeof r & { lat: number; lng: number } => r.lat != null && r.lng != null)
-      .map((r) => {
-        const building = Array.isArray(r.buildings) ? r.buildings[0] : r.buildings;
-        return {
-          id: r.id as string,
-          lat: r.lat,
-          lng: r.lng,
-          placardFinal: (r.placard_final ?? "none") as RemoteInspection["placardFinal"],
-          evaluationLevel: (r.evaluation_level ?? "rapida") as RemoteInspection["evaluationLevel"],
-          inspectedAt: r.inspected_at as string,
-          buildingName: building?.name ?? null,
-          address: building?.address ?? null,
-          constructionType: building?.construction_type ?? null,
-          isEssential: building?.is_essential ?? null,
-          cachedAt: now,
-        };
-      });
+      .map((r) => ({
+        id: r.id as string,
+        lat: r.lat,
+        lng: r.lng,
+        placardFinal: (r.placard_final ?? "none") as RemoteInspection["placardFinal"],
+        evaluationLevel: (r.evaluation_level ?? "rapida") as RemoteInspection["evaluationLevel"],
+        inspectedAt: r.inspected_at as string,
+        buildingName: r.building_name ?? null,
+        address: r.address ?? null,
+        constructionType: r.construction_type ?? null,
+        isEssential: r.is_essential ?? null,
+        cachedAt: now,
+      }));
     await cacheRemoteInspections(items);
   } catch {
     /* silencioso: el mapa usa la caché local */
