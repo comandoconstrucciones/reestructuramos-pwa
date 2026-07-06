@@ -53,6 +53,6 @@ Tras los sismos **M7.2 y M7.5 del 24 de junio de 2026**, hay que evaluar **miles
 
 ---
 
-*Iniciativa desarrollada en el marco de Build4Venezuela. Contacto: Comando Construcciones — Claudio Palacios · +57 310 312 2581 · claudio@comandoconstrucciones.com*
+*Iniciativa desarrollada en el marco de Build4Venezuela. Contacto: Claudio Palacios · 0422 1636113 · claudio@comandoconstrucciones.com*
 
 > Nota: reestructuramos es un instrumento de **apoyo al criterio** para triaje rápido; no sustituye una evaluación de ingeniería detallada ni un dictamen oficial.
