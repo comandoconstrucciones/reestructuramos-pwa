@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "./database.types";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -6,13 +7,13 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 /** ¿Hay credenciales de Supabase? Si no, la app corre 100% local/offline. */
 export const isSupabaseConfigured = Boolean(url && anonKey);
 
-let client: SupabaseClient | null = null;
+let client: SupabaseClient<Database> | null = null;
 
-/** Cliente Supabase (singleton) o null si no está configurado. */
-export function getSupabase(): SupabaseClient | null {
+/** Cliente Supabase tipado (singleton) o null si no está configurado. */
+export function getSupabase(): SupabaseClient<Database> | null {
   if (!isSupabaseConfigured) return null;
   if (client) return client;
-  client = createClient(url!, anonKey!, {
+  client = createClient<Database>(url!, anonKey!, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,

@@ -1,7 +1,10 @@
 # reestructuramos — guía para agentes de código
 
-PWA **offline-first** de inspección estructural post-sismo (ATC-20 adaptado a Venezuela / COVENIN 1756).
-Stack: **Next.js 16 (App Router) + React 19.2 + TypeScript + Tailwind v4 + Dexie + Supabase + Leaflet**.
+PWA **offline-first** de inspección estructural post-sismo alineada 1:1 con la metodología oficial
+venezolana **"Evaluación Rápida de Daños en Edificaciones" (FUNVISIS / IMME-UCV, López et al. 2023)**.
+FUNVISIS es la capa PRIMARIA de captura; la capa ATC-20 convive y se DERIVA del mapeo
+A→verde(INSPECTED), B→amarillo(RESTRICTED), C→rojo(UNSAFE). No romper ninguna de las dos.
+Stack: **Next.js 16 (App Router) + React 19.2 + TypeScript + Tailwind v4 + Dexie + Supabase + Leaflet + zod + vitest**.
 
 ## ⚠️ Esto NO es el Next.js que conoces (Next 16 — breaking changes)
 
@@ -32,7 +35,15 @@ Stack: **Next.js 16 (App Router) + React 19.2 + TypeScript + Tailwind v4 + Dexie
 - `@/lib/image` — `compressImage(file|blob)` (máx 1600px, JPEG ~0.7).
 - `@/lib/id` — `newId()` (uuid v4 vía `crypto.randomUUID`).
 - `@/lib/cn` — `cn(...)` (clsx + tailwind-merge).
-- `@/lib/supabase` — `getSupabase()` (o null si no configurado), `isSupabaseConfigured`.
+- `@/lib/supabase` — `getSupabase()` tipado con `Database` (o null si no configurado), `isSupabaseConfigured`.
+- `@/lib/database.types` — tipos generados de Supabase (regenerar vía MCP, NO editar a mano).
+- `@/lib/funvisis/types` — enums/tipos de la planilla FUNVISIS (evento, aspectos externos, conteos, componentes, medidas, firmas).
+- `@/lib/funvisis/scoring` — motor PURO de la planilla: `scoreExternal/scoreSevere/scoreModerate/scoreComponents/computeFunvisis`, reglas de corte, `DAMAGE_CRITERIA`, `suggestGradeFromCrackWidth`, `overrideNeedsReason`. Tests en `scoring.test.ts` (`pnpm test`) — NO tocar las reglas sin tests en verde.
+- `@/lib/funvisis/catalog` — textos oficiales es-VE de la planilla (aspectos, componentes, medidas, catálogos de uso/material).
+- `@/lib/funvisis/validation` — schemas zod por paso del asistente (`validateStep`).
+- `@/lib/funvisis/normalize` — normalización legado↔FUNVISIS (detailed evals, material→tipología ATC-20, nº de planilla).
+- `@/lib/funvisis/pdf` — `buildPlanillaPdf` (planilla oficial 2 págs.) y `buildEtiquetaPdf` (media carta).
+- `@/lib/funvisis/export` — filas planas + `buildCsv`/`buildGeoJson` con mapeo dual `placard_atc20`/`etiqueta_funvisis`.
 - `@/lib/sync` — `syncEngine` (cola con backoff) + `useSyncStatus()`.
 - `@/lib/store` — Zustand: estado online/offline y de sincronización.
 - Componentes en `@/components/ui` (Button, Card, SeverityPicker, Toggle, Stepper, Sheet…), `@/components/PhotoCapture`, `@/components/AnnotationCanvas`, `@/components/BottomNav`, `@/components/map/*`.
@@ -41,21 +52,23 @@ Stack: **Next.js 16 (App Router) + React 19.2 + TypeScript + Tailwind v4 + Dexie
 
 - `/` — Mapa de daños (pines por cartel) + botón "Nueva inspección".
 - `/onboarding` — inducción + mini-quiz.
-- `/inspeccion/nueva` — asistente de Evaluación Rápida (autoguardado).
+- `/inspeccion/nueva` — asistente de Evaluación Rápida: **7 pasos = planilla FUNVISIS** (1 Información general, 2 Inspección externa, 3 Piso crítico, 4 Daño Moderado, 5 Componentes, 6 Decisión final, 7 Acciones y firmas). Reglas de corte: riesgo externo C o N severo ≥ 1 saltan al paso 6 y omiten las secciones intermedias.
 - `/inspecciones` — mis inspecciones + estado de sync.
 - `/inspeccion/[clientUuid]` — resultado/cartel + PDF + QR.
 - `/edificio/[id]` — historial del edificio (destino del QR).
 - `/guia` — guía de campo offline.
+- `/admin` — dashboard: mapa semáforo, filtros (evento/municipio/fecha/sync), contadores y exports CSV/GeoJSON.
+- `/admin/importar` — importador del zip de QuickCheck Damage (JSZip + sql.js con `/sql-wasm.wasm` local → `quickcheck_import_staging`; requiere coordinador).
 
 ## Reglas de oro al implementar
 
 - `"use client"` en toda pantalla que use Dexie/estado/eventos.
 - Lee datos con `useLiveQuery` de `dexie-react-hooks` para reactividad offline.
-- No instales dependencias nuevas (ya están todas). No toques `package.json`, `next.config.ts`, `app/globals.css`, ni los archivos de `@/lib/*` salvo que sean tuyos.
+- No instales dependencias nuevas (ya están todas, incl. zod, jszip, sql.js, vitest). No toques `package.json`, `next.config.ts`, `app/globals.css`, ni los archivos de `@/lib/*` salvo que sean tuyos.
 - Español es-VE en toda la UI. Identificadores en inglés.
 - Verifica con `pnpm typecheck` y `pnpm build` antes de dar por hecho algo.
 
 ## Scripts
 
 - `pnpm dev` — desarrollo. `pnpm build` — build prod (Turbopack). `pnpm start` — servir.
-- `pnpm typecheck` — `tsc --noEmit`. `pnpm lint` — ESLint. `pnpm gen:icons` — regenerar íconos.
+- `pnpm typecheck` — `tsc --noEmit`. `pnpm lint` — ESLint. `pnpm test` — vitest (motor FUNVISIS). `pnpm gen:icons` — regenerar íconos.

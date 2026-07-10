@@ -22,13 +22,25 @@ export interface StepProps {
   finalize?: () => Promise<void>;
 }
 
-/** Etiquetas (y orden) de los pasos del asistente. */
+/** Etiquetas (y orden) de los pasos del asistente — planilla FUNVISIS 1:1.
+ *  Paso N del asistente = Sección N de la planilla (Secciones 6 y 7 = pasos
+ *  6 y 7). Las reglas de corte saltan directo al paso 6 (Decisión final). */
 export const WIZARD_STEPS = [
-  "Ubicación",
-  "Edificio",
-  "Peligros",
-  "Daño global",
-  "Resultado",
+  "Información general",
+  "Inspección externa",
+  "Piso crítico",
+  "Daño Moderado",
+  "Componentes",
+  "Decisión final",
+  "Acciones y firmas",
 ] as const;
 
 export const WIZARD_TOTAL = WIZARD_STEPS.length;
+
+/** Índices (0-based) de los pasos clave para las reglas de corte. */
+export const STEP_EXTERNAL = 1;
+export const STEP_SEVERE = 2;
+export const STEP_MODERATE = 3;
+export const STEP_COMPONENTS = 4;
+export const STEP_DECISION = 5;
+export const STEP_ACTIONS = 6;

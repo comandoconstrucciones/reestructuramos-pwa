@@ -5,7 +5,7 @@
  *  - Tiles OSM: CacheFirst con expiración suave.
  *  - Supabase (API/Storage/Auth): se deja pasar a la red (los datos viven en IndexedDB).
  */
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL = `reestructuramos-shell-${VERSION}`;
 const STATIC = `reestructuramos-static-${VERSION}`;
 const TILES = `reestructuramos-tiles-${VERSION}`;
@@ -18,6 +18,7 @@ const APP_SHELL = [
   "/inspeccion/nueva",
   "/inspecciones",
   "/guia",
+  "/admin",
   "/offline.html",
   "/manifest.webmanifest",
   "/icon-192.png",

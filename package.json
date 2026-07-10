@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "gen:icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
@@ -18,13 +19,16 @@
     "dexie-react-hooks": "^4.4.0",
     "html5-qrcode": "^2.3.8",
     "jspdf": "^4.2.1",
+    "jszip": "^3.10.1",
     "leaflet": "^1.9.4",
     "next": "16.2.9",
     "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-leaflet": "^5.0.0",
+    "sql.js": "^1.14.1",
     "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
@@ -34,9 +38,11 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sql.js": "^1.4.11",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

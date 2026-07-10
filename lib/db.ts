@@ -3,6 +3,8 @@
 
 import Dexie, { type Table } from "dexie";
 import { newId } from "./id";
+import { computeFunvisis } from "./funvisis/scoring";
+import { buildPlanillaNo, normalizeDetailedEvals, toHHMM } from "./funvisis/normalize";
 import type {
   Building,
   Finding,
@@ -111,6 +113,18 @@ export async function createDraftInspection(opts?: {
     barricadesNeeded: false,
     detailedEvalRecommended: [],
     findings: [],
+    // --- Planilla FUNVISIS: encabezado + defaults --------------------------
+    eventType: "sismo",
+    eventDate: now.slice(0, 10),
+    timeStart: toHHMM(new Date()),
+    nSevereColumns: 0,
+    nSevereConcreteWalls: 0,
+    nSevereMasonryWalls: 0,
+    nSevereBeams: 0,
+    elementCounts: [],
+    gasLeak: false,
+    preventionMeasures: [],
+    inspectors: [],
     status: "draft",
     step: 0,
     createdAt: now,
@@ -171,15 +185,48 @@ export async function listDrafts(): Promise<Inspection[]> {
   return drafts.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
-/** Marca el borrador como completado, registra el edificio y lo encola para sync. */
+/** Marca el borrador como completado, registra el edificio y lo encola para
+ *  sync. Sella además la capa FUNVISIS: hora fin, nº de planilla y los riesgos
+ *  calculados (fuente de verdad: motor puro de lib/funvisis/scoring). */
 export async function finalizeInspection(clientUuid: string): Promise<void> {
   await db.transaction("rw", db.inspections, db.buildings, async () => {
     const insp = await db.inspections.get(clientUuid);
     if (!insp) return;
-    const now = new Date().toISOString();
+    const nowDate = new Date();
+    const now = nowDate.toISOString();
+
+    const result = computeFunvisis({
+      external: insp,
+      severe: {
+        nSevereColumns: insp.nSevereColumns ?? 0,
+        nSevereConcreteWalls: insp.nSevereConcreteWalls ?? 0,
+        nSevereMasonryWalls: insp.nSevereMasonryWalls ?? 0,
+        nSevereBeams: insp.nSevereBeams ?? 0,
+      },
+      elementCounts: insp.elementCounts ?? [],
+      moderatePctEstimated: insp.moderatePctEstimated,
+      components: insp,
+    });
+
+    const placardSuggested =
+      result.placardSuggested !== "none" ? result.placardSuggested : insp.placardSuggested;
+
     await db.buildings.put({ ...insp.building, syncStatus: "pending" });
     await db.inspections.put({
       ...insp,
+      // Capa FUNVISIS sellada
+      planillaNo: insp.planillaNo ?? buildPlanillaNo(insp.clientUuid, nowDate),
+      timeEnd: toHHMM(nowDate),
+      riskExternal: result.riskExternal,
+      riskSevere: result.riskSevere,
+      riskModerate: result.riskModerate,
+      riskComponents: result.riskComponents,
+      riskOverall: result.riskOverall,
+      detailedEvalRecommended: normalizeDetailedEvals(insp.detailedEvalRecommended),
+      // Capa ATC-20 derivada (el override manual del inspector se respeta)
+      placardSuggested,
+      placardFinal:
+        insp.placardManual || insp.placardFinal !== "none" ? insp.placardFinal : placardSuggested,
       status: "complete",
       // Sella la fecha efectiva al finalizar (no al crear el borrador).
       inspectedAt: now,

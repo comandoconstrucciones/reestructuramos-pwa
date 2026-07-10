@@ -13,14 +13,34 @@ import {
 import { useSyncStore } from "@/lib/store";
 import { useWakeLock } from "@/lib/useWakeLock";
 import type { Inspection } from "@/lib/types";
-import { WIZARD_TOTAL, type InspUpdate } from "@/components/wizard/types";
+import { scoreExternal, totalSevereMembers } from "@/lib/funvisis/scoring";
+import { validateStep } from "@/lib/funvisis/validation";
+import {
+  STEP_DECISION,
+  STEP_EXTERNAL,
+  STEP_SEVERE,
+  WIZARD_TOTAL,
+  type InspUpdate,
+} from "@/components/wizard/types";
 import { WizardProgress } from "@/components/wizard/WizardProgress";
 import { WizardNav } from "@/components/wizard/WizardNav";
-import { StepLocation } from "@/components/wizard/StepLocation";
-import { StepBuilding } from "@/components/wizard/StepBuilding";
-import { StepHazards } from "@/components/wizard/StepHazards";
-import { StepDamage } from "@/components/wizard/StepDamage";
-import { StepResult } from "@/components/wizard/StepResult";
+import { StepGeneral } from "@/components/wizard/StepGeneral";
+import { StepExternal } from "@/components/wizard/StepExternal";
+import { StepSevere } from "@/components/wizard/StepSevere";
+import { StepModerate } from "@/components/wizard/StepModerate";
+import { StepComponents } from "@/components/wizard/StepComponents";
+import { StepDecision } from "@/components/wizard/StepDecision";
+import { StepActions } from "@/components/wizard/StepActions";
+
+/** N de miembros con daño Severo/Completo (regla de corte de la Sección 3). */
+function severeN(insp: Inspection): number {
+  return totalSevereMembers({
+    nSevereColumns: insp.nSevereColumns ?? 0,
+    nSevereConcreteWalls: insp.nSevereConcreteWalls ?? 0,
+    nSevereMasonryWalls: insp.nSevereMasonryWalls ?? 0,
+    nSevereBeams: insp.nSevereBeams ?? 0,
+  });
+}
 
 type Phase = "loading" | "choose" | "active";
 
@@ -144,6 +164,22 @@ export default function NuevaInspeccionPage() {
     if (typeof window !== "undefined") window.scrollTo({ top: 0 });
   }
 
+  // Reglas de corte de la planilla: riesgo externo C u N severo ≥ 1 saltan
+  // directo al paso 6 (Decisión final); las secciones intermedias se omiten.
+  function nextIndex(step: number, cur: Inspection): number {
+    if (step === STEP_EXTERNAL && scoreExternal(cur) === "C") return STEP_DECISION;
+    if (step === STEP_SEVERE && severeN(cur) >= 1) return STEP_DECISION;
+    return Math.min(WIZARD_TOTAL - 1, step + 1);
+  }
+
+  function prevIndex(step: number, cur: Inspection): number {
+    if (step === STEP_DECISION) {
+      if (scoreExternal(cur) === "C") return STEP_EXTERNAL;
+      if (severeN(cur) >= 1) return STEP_SEVERE;
+    }
+    return Math.max(0, step - 1);
+  }
+
   // --- Render ---------------------------------------------------------------
 
   if (phase === "loading") {
@@ -199,31 +235,33 @@ export default function NuevaInspeccionPage() {
 
   const step = Math.max(0, Math.min(WIZARD_TOTAL - 1, insp.step));
   const isLast = step === WIZARD_TOTAL - 1;
-  const locationOk = insp.lat != null && insp.lng != null;
-  const canNext = step === 0 ? locationOk : true;
+  // Validación zod por paso: bloquea «Siguiente» y muestra el primer faltante.
+  const issues = validateStep(step, insp);
+  const canNext = issues.length === 0;
+  const externalCut = step === STEP_EXTERNAL && scoreExternal(insp) === "C";
+  const severeCut = step === STEP_SEVERE && severeN(insp) >= 1;
 
   return (
     <AppShell title="Evaluación rápida" back hideNav>
       <div className="mx-auto flex max-w-lg flex-col gap-4">
         <WizardProgress step={step} />
 
-        {step === 0 && <StepLocation insp={insp} update={update} />}
-        {step === 1 && <StepBuilding insp={insp} update={update} />}
-        {step === 2 && <StepHazards insp={insp} update={update} />}
-        {step === 3 && <StepDamage insp={insp} update={update} />}
-        {step === 4 && <StepResult insp={insp} update={update} finalize={finalize} />}
+        {step === 0 && <StepGeneral insp={insp} update={update} />}
+        {step === 1 && <StepExternal insp={insp} update={update} />}
+        {step === 2 && <StepSevere insp={insp} update={update} />}
+        {step === 3 && <StepModerate insp={insp} update={update} />}
+        {step === 4 && <StepComponents insp={insp} update={update} />}
+        {step === 5 && <StepDecision insp={insp} update={update} />}
+        {step === 6 && <StepActions insp={insp} update={update} finalize={finalize} />}
 
         <WizardNav
           canBack={step > 0}
           canNext={canNext}
           hideNext={isLast}
-          onBack={() => goTo(step - 1)}
-          onNext={() => goTo(step + 1)}
-          hint={
-            step === 0
-              ? "Obtén tu ubicación o toca el mapa para continuar."
-              : undefined
-          }
+          onBack={() => goTo(prevIndex(step, insp))}
+          onNext={() => goTo(nextIndex(step, insp))}
+          nextLabel={externalCut || severeCut ? "Ir a Decisión final ›" : undefined}
+          hint={issues[0]}
         />
       </div>
     </AppShell>

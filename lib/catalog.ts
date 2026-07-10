@@ -137,11 +137,18 @@ export const GEOTECHNICAL_ELEMENTS: ElementDef[] = [
   { element: "licuefaccion", label: "Licuefacción" },
 ];
 
-export const ELEMENT_LABELS: Record<string, string> = Object.fromEntries(
-  [...GENERAL_HAZARDS, ...STRUCTURAL_ELEMENTS, ...NONSTRUCTURAL_ELEMENTS, ...GEOTECHNICAL_ELEMENTS].map(
-    (e) => [e.element, e.label],
+export const ELEMENT_LABELS: Record<string, string> = {
+  ...Object.fromEntries(
+    [...GENERAL_HAZARDS, ...STRUCTURAL_ELEMENTS, ...NONSTRUCTURAL_ELEMENTS, ...GEOTECHNICAL_ELEMENTS].map(
+      (e) => [e.element, e.label],
+    ),
   ),
-);
+  // Tipos de elemento de la Sección 4 FUNVISIS (hallazgos del fisurómetro).
+  columna_union: "Columnas y uniones",
+  muro_concreto: "Muros de concreto armado",
+  muro_mamposteria: "Paredes de mampostería",
+  viga_arriostramiento: "Vigas y arriostramientos",
+};
 
 export function getElementLabel(element: string): string {
   return ELEMENT_LABELS[element] ?? element;

@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/AppShell";
@@ -157,6 +158,13 @@ export default function CuentaPage() {
             )}
           </Card>
         )}
+
+        <Link
+          href="/admin"
+          className="touch-target flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 font-semibold text-ink active:bg-slate-100"
+        >
+          <Icon name="map" size={18} /> Dashboard de inspecciones (admin)
+        </Link>
 
         <p className="px-1 text-center text-xs text-slate-400">
           El acceso anónimo siempre está disponible: puedes inspeccionar sin iniciar sesión.

@@ -16,6 +16,8 @@ import {
   getElementLabel,
 } from "@/lib/catalog";
 import { getInspection, listPhotos } from "@/lib/db";
+import { RISK_LABELS } from "@/lib/funvisis/catalog";
+import { buildEtiquetaPdf, buildPlanillaPdf } from "@/lib/funvisis/pdf";
 import { buildInspectionPdf } from "@/lib/pdf";
 import { PLACARD_META } from "@/lib/placard";
 import { triggerSync } from "@/lib/sync";
@@ -109,22 +111,40 @@ export default function InspectionResultPage() {
   const sync = SYNC_META[inspection.syncStatus];
   const restrictions = inspection.entryRestrictions || meta.defaultRestrictions;
 
+  function saveBlob(blob: Blob, name: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
+  const stamp = (inspection.inspectedAt ?? "").slice(0, 10) || "inspeccion";
+  const shortId = inspection.clientUuid.slice(0, 8);
+
   async function downloadPdf() {
     setPdfBusy(true);
     try {
-      const blob = await buildInspectionPdf(inspection, photos);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const stamp = (inspection.inspectedAt ?? "").slice(0, 10) || "inspeccion";
-      a.download = `reestructuramos-${stamp}-${inspection.clientUuid.slice(0, 8)}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      saveBlob(await buildInspectionPdf(inspection, photos), `reestructuramos-${stamp}-${shortId}.pdf`);
     } finally {
       setPdfBusy(false);
     }
+  }
+
+  async function downloadPlanilla() {
+    setPdfBusy(true);
+    try {
+      saveBlob(await buildPlanillaPdf(inspection), `planilla-funvisis-${stamp}-${shortId}.pdf`);
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
+  function downloadEtiqueta() {
+    saveBlob(buildEtiquetaPdf(inspection), `etiqueta-${stamp}-${shortId}.pdf`);
   }
 
   return (
@@ -155,14 +175,34 @@ export default function InspectionResultPage() {
 
         {/* Acciones */}
         <div className="grid grid-cols-2 gap-2">
-          <Button onClick={downloadPdf} disabled={pdfBusy}>
+          <Button onClick={downloadPlanilla} disabled={pdfBusy}>
             {pdfBusy ? <Spinner /> : <Icon name="download" size={18} />}
-            {pdfBusy ? "Generando…" : "Descargar PDF"}
+            {pdfBusy ? "Generando…" : "Planilla FUNVISIS (PDF)"}
+          </Button>
+          <Button variant="secondary" onClick={downloadEtiqueta}>
+            <Icon name="printer" size={18} /> Etiqueta (PDF)
+          </Button>
+          <Button variant="secondary" onClick={downloadPdf} disabled={pdfBusy}>
+            <Icon name="download" size={18} /> Reporte completo
           </Button>
           <Button variant="secondary" onClick={() => setShowPlacard(true)}>
             <Icon name="printer" size={18} /> Cartel para imprimir
           </Button>
         </div>
+
+        {/* Riesgos FUNVISIS */}
+        {inspection.riskOverall && (
+          <Card>
+            <CardTitle>Planilla FUNVISIS · {inspection.planillaNo ?? "—"}</CardTitle>
+            <dl className="mt-3 space-y-2">
+              <Row k="2. Riesgo externo" v={inspection.riskExternal ? RISK_LABELS[inspection.riskExternal] : "Omitida"} />
+              <Row k="3. Daño Severo/Completo" v={inspection.riskSevere ? RISK_LABELS[inspection.riskSevere] : "Omitida"} />
+              <Row k="4. Daño Moderado" v={inspection.riskModerate ? RISK_LABELS[inspection.riskModerate] : "Omitida"} />
+              <Row k="5. Componentes" v={inspection.riskComponents ? RISK_LABELS[inspection.riskComponents] : "Omitida"} />
+              <Row k="6. Riesgo global" v={RISK_LABELS[inspection.riskOverall]} />
+            </dl>
+          </Card>
+        )}
         <ShareButton
           className="w-full"
           label="Compartir estado del edificio"

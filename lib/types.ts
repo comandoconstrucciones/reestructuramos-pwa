@@ -1,6 +1,23 @@
 // Tipos de dominio y enums. Identificadores en inglés; valores de enum en español
 // porque coinciden 1:1 con los CHECK de PostgreSQL (ver supabase/migrations).
 
+import type {
+  AccessMembers,
+  AspectLevel,
+  CoInspector,
+  ElementCount,
+  EventType,
+  ExtCollapse,
+  ExtDanger,
+  ExtSettlement,
+  ExtTilt,
+  FunvisisDetailedEval,
+  FunvisisMaterial,
+  FunvisisOccupancy,
+  PreventionMeasure,
+  RiskLevel,
+} from "./funvisis/types";
+
 export const CONSTRUCTION_TYPES = [
   "portico_concreto",
   "muro_concreto",
@@ -52,7 +69,11 @@ export const DAMAGE_BANDS = ["0-1", "1-10", "10-30", "30-60", "60-100", "100"] a
 export type DamageBand = (typeof DAMAGE_BANDS)[number];
 
 export const DETAILED_EVALS = ["estructural", "geotecnico", "otro"] as const;
-export type DetailedEval = (typeof DETAILED_EVALS)[number];
+export type LegacyDetailedEval = (typeof DETAILED_EVALS)[number];
+/** La capa FUNVISIS normaliza estos valores a los de la planilla oficial
+ *  (estructura, geologia_geotecnia, instalaciones, otra); los legados se
+ *  aceptan en lectura y se normalizan al guardar (ver lib/funvisis/normalize). */
+export type DetailedEval = LegacyDetailedEval | FunvisisDetailedEval;
 
 export const ROLES = ["voluntario", "ingeniero", "arquitecto", "coordinador"] as const;
 export type Role = (typeof ROLES)[number];
@@ -89,11 +110,23 @@ export interface Building {
   nStoriesAbove?: number;
   nStoriesBelow?: number;
   yearBuilt?: number;
-  occupancyType?: OccupancyType;
+  /** Acepta el catálogo legado (ATC-20) y el oficial FUNVISIS; la captura
+   *  nueva usa SIEMPRE el catálogo FUNVISIS (catalog_occupancy). */
+  occupancyType?: OccupancyType | FunvisisOccupancy;
   footprintAreaM2?: number;
   isEssential: boolean;
   softStory: boolean;
   shortColumn: boolean;
+  // --- Planilla FUNVISIS: Sección 1 (identificación político-territorial) ---
+  estado?: string;
+  municipio?: string;
+  ciudad?: string;
+  sectorCalle?: string;
+  nOccupants?: number;
+  nSemiBasements?: number;
+  /** Material según catálogo FUNVISIS (catalog_material); constructionType
+   *  (ATC-20) se deriva de este valor para retrocompatibilidad. */
+  material?: FunvisisMaterial;
   createdAt: string;
   syncStatus: SyncStatus;
 }
@@ -161,6 +194,51 @@ export interface Inspection {
   generalComments?: string;
   inspectorSignature?: string; // nombre o dataURL de firma
   findings: Finding[];
+  // --- Planilla FUNVISIS (capa primaria de captura; ATC-20 se deriva) -------
+  /** Nº de planilla (se genera al finalizar: FV-AAAAMMDD-XXXX). */
+  planillaNo?: string;
+  eventType?: EventType;
+  eventDate?: string; // ISO date (YYYY-MM-DD)
+  timeStart?: string; // HH:MM (se fija al crear)
+  timeEnd?: string; // HH:MM (se sella al finalizar)
+  // Sección 2: inspección externa
+  extCollapse?: ExtCollapse;
+  extAdjacentDanger?: ExtDanger;
+  extGeoDanger?: ExtDanger;
+  extSettlement?: ExtSettlement;
+  extTilt?: ExtTilt;
+  riskExternal?: RiskLevel | null;
+  // Sección 3: piso crítico y daño Severo/Completo
+  floorsInspected?: string;
+  criticalFloor?: string;
+  accessMembers?: AccessMembers;
+  nSevereColumns?: number;
+  nSevereConcreteWalls?: number;
+  nSevereMasonryWalls?: number;
+  nSevereBeams?: number;
+  riskSevere?: RiskLevel | null;
+  // Sección 4: daño moderado (conteos por tipo de elemento)
+  elementCounts?: ElementCount[];
+  moderatePctEstimated?: number | null;
+  riskModerate?: RiskLevel | null;
+  // Sección 5: componentes no estructurales
+  compSlabs?: AspectLevel;
+  compWallsStairsFacades?: AspectLevel;
+  compTanksAntennas?: AspectLevel;
+  compUtilities?: AspectLevel;
+  compElevators?: AspectLevel;
+  gasLeak?: boolean;
+  riskComponents?: RiskLevel | null;
+  // Sección 6: decisión final
+  riskOverall?: RiskLevel | null;
+  /** Croquis de la planta del piso crítico (PNG local hasta subir). */
+  sketchBlob?: Blob | null;
+  sketchStoragePath?: string | null;
+  observations?: string;
+  // Sección 7: acciones recomendadas y firmas
+  preventionMeasures?: PreventionMeasure[];
+  /** Hasta 4 inspectores con firma (tabla puente inspection_inspectors). */
+  inspectors?: CoInspector[];
   // --- metadatos locales ---
   status: InspectionStatus;
   step: number; // paso del asistente (para reanudar)
