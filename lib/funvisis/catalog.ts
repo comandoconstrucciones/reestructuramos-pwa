@@ -65,17 +65,17 @@ export interface ExternalAspectDef<T extends string> {
 
 export const EXT_COLLAPSE_DEF: ExternalAspectDef<ExtCollapse> = {
   key: "extCollapse",
-  title: "Colapso de la edificación",
-  help: "¿La edificación colapsó total o parcialmente, o puede hacerlo?",
+  title: "Colapso de la estructura",
+  help: "¿La estructura colapsó total o parcialmente, o puede hacerlo?",
   options: [
     { value: "no", label: "No", level: "a" },
-    { value: "posible_parcial_total", label: "Posible / parcial / total", level: "c" },
+    { value: "posible_parcial_total", label: "Posible, parcial o total", level: "c" },
   ],
 };
 
 export const EXT_ADJACENT_DEF: ExternalAspectDef<ExtDanger> = {
   key: "extAdjacentDanger",
-  title: "Peligro por edificaciones o elementos adyacentes",
+  title: "Peligro por edificios aledaños",
   help: "Riesgo de caída de edificaciones vecinas, tanques, antenas, postes u objetos sobre esta edificación.",
   options: [
     { value: "no", label: "No", level: "a" },
@@ -86,8 +86,8 @@ export const EXT_ADJACENT_DEF: ExternalAspectDef<ExtDanger> = {
 
 export const EXT_GEO_DEF: ExternalAspectDef<ExtDanger> = {
   key: "extGeoDanger",
-  title: "Peligro geológico / geotécnico",
-  help: "Deslizamiento, grietas en el terreno, hundimiento o movimiento del suelo alrededor de la edificación.",
+  title: "Peligro geológico o geotécnico",
+  help: "Deslizamiento, licuación, socavación o agrietamiento del terreno (manual de campo oficial).",
   options: [
     { value: "no", label: "No", level: "a" },
     { value: "moderado", label: "Moderado", level: "b" },
@@ -97,25 +97,25 @@ export const EXT_GEO_DEF: ExternalAspectDef<ExtDanger> = {
 
 export const EXT_SETTLEMENT_DEF: ExternalAspectDef<ExtSettlement> = {
   key: "extSettlement",
-  title: "Asentamiento de la edificación",
+  title: "Asentamiento del edificio",
   help: "Hundimiento visible de la edificación respecto al terreno o aceras.",
   options: [
     { value: "no", label: "No", level: "a" },
     { value: "hasta_20cm", label: "Hasta 20 cm", level: "b" },
-    { value: "mayor_20cm", label: "Mayor de 20 cm", level: "c" },
+    { value: "mayor_20cm", label: "Mayor que 20 cm", level: "c" },
   ],
 };
 
 export const EXT_TILT_DEF: ExternalAspectDef<ExtTilt> = {
   key: "extTilt",
-  title: "Inclinación de la edificación",
+  title: "Inclinación del edificio",
   help:
-    "Medida con plomada de 60 cm: cuelga la plomada y mide la separación horizontal " +
-    "a 60 cm de altura. Hasta 2 cm de separación en 60 cm = moderada; más de 2 cm = elevada.",
+    "Cuelga la plomada de 60 cm de longitud sobre la pared inclinada del edificio y mide la " +
+    "distancia horizontal d (cm): sin inclinación; d ≤ 2 cm; o d > 2 cm (manual de campo oficial).",
   options: [
     { value: "no", label: "No", level: "a" },
-    { value: "hasta_2cm_60cm", label: "Hasta 2 cm en 60 cm", level: "b" },
-    { value: "mayor_2cm_60cm", label: "Mayor de 2 cm en 60 cm", level: "c" },
+    { value: "hasta_2cm_60cm", label: "Hasta 2 cm/60 cm", level: "b" },
+    { value: "mayor_2cm_60cm", label: "Mayor que 2 cm/60 cm", level: "c" },
   ],
 };
 
@@ -160,50 +160,52 @@ export interface ComponentDef {
   levels: Record<AspectLevel, string>;
 }
 
+// Textos oficiales de la planilla (columnas a. Bajo / b. Medio / c. Alto).
+// "Riesgo de caída" = compromete la seguridad de los ocupantes.
 export const COMPONENT_DEFS: ComponentDef[] = [
   {
     key: "compSlabs",
-    title: "Losas, balcones y techos",
+    title: "Losas / balcones / techos",
     levels: {
-      a: "Sin daño o daño leve",
-      b: "Daño moderado sin riesgo de caída",
-      c: "Daño severo o riesgo de caída de partes",
+      a: "Sin o poco daño",
+      b: "Grietas o deformación visible",
+      c: "Riesgo de colapso",
     },
   },
   {
     key: "compWallsStairsFacades",
-    title: "Paredes, escaleras y fachadas",
+    title: "Paredes / escaleras / fachadas",
     levels: {
-      a: "Sin daño o daño leve",
-      b: "Daño moderado sin riesgo de caída",
-      c: "Daño severo, riesgo de caída o escaleras inutilizables",
+      a: "Sin o poco daño",
+      b: "Grietas o separación",
+      c: "Riesgo de caída",
     },
   },
   {
     key: "compTanksAntennas",
-    title: "Tanques, antenas y avisos",
+    title: "Tanques / antenas / avisos / similar",
     levels: {
-      a: "Sin daño o daño leve",
-      b: "Daño moderado sin riesgo de caída",
-      c: "Riesgo de volcamiento o caída",
+      a: "Sin o poco daño",
+      b: "Deformación visible",
+      c: "Riesgo de caída",
     },
   },
   {
     key: "compUtilities",
-    title: "Servicios: gas, agua y electricidad",
+    title: "Gas, agua y electricidad",
     levels: {
-      a: "Sin daño aparente en las instalaciones",
-      b: "Daño moderado (filtraciones, cables sueltos) sin peligro inmediato",
-      c: "Fuga de gas, cables energizados expuestos o rotura mayor",
+      a: "Sin o poco daño",
+      b: "Separación y/o deformación",
+      c: "Fuga de gas",
     },
   },
   {
     key: "compElevators",
-    title: "Ascensores y equipos",
+    title: "Ascensores, equipos y otros",
     levels: {
-      a: "Sin daño o daño leve",
-      b: "Daño moderado; requiere revisión antes de usar",
-      c: "Daño severo o fuera de servicio por el evento",
+      a: "Sin o poco daño",
+      b: "Separación y/o deformación",
+      c: "Riesgo de caída",
     },
   },
 ];
@@ -239,4 +241,69 @@ export const SECTION_RISK_TITLES: { key: string; title: string }[] = [
   { key: "riskSevere", title: "3. Daño Severo/Completo" },
   { key: "riskModerate", title: "4. Daño Moderado" },
   { key: "riskComponents", title: "5. Componentes no estructurales" },
+];
+
+// --- Documentos oficiales de la metodología (servidos desde /public/docs) ----
+
+export interface OfficialDoc {
+  file: string;
+  title: string;
+  description: string;
+  sizeLabel: string;
+}
+
+export const OFFICIAL_DOCS: OfficialDoc[] = [
+  {
+    file: "/docs/planilla-oficial-funvisis.pdf",
+    title: "Planilla oficial + Manual de campo",
+    description:
+      "«Evaluación Rápida de Daños en Edificaciones» — FUNVISIS / Ministerio del Poder Popular " +
+      "para Relaciones Interiores, Justicia y Paz. Es la planilla que este asistente replica 1:1 " +
+      "(2 páginas: formulario y manual de campo con la tabla de criterios de daño).",
+    sizeLabel: "PDF · 0,4 MB",
+  },
+  {
+    file: "/docs/metodologia-lopez-2023.pdf",
+    title: "Metodología completa (López et al., 2023)",
+    description:
+      "López O. A., Coronel G., Ginés C., Fierro F., Marinilli A. y Urich A. «Evaluación Rápida de " +
+      "Daños en Edificaciones», Boletín de la Academia Nacional de la Ingeniería y el Hábitat " +
+      "N.º 61, Caracas, oct.–dic. 2023, pp. 8–31. Fundamento técnico de todo el instrumento.",
+    sizeLabel: "PDF · 2,2 MB",
+  },
+  {
+    file: "/docs/manual-entrenamiento-imme-ucv.pdf",
+    title: "Manual de entrenamiento (IMME-UCV)",
+    description:
+      "«Evaluación Rápida de Daño Post-Desastre» — material del taller de formación de inspectores " +
+      "(López, Coronel y Rojas, IMME, Facultad de Ingeniería UCV): guía gráfica de daños, " +
+      "comentarios y ejemplo de aplicación. Base del entrenamiento previo al trabajo de campo.",
+    sizeLabel: "PDF · 8,9 MB",
+  },
+];
+
+// --- Manual de campo (planilla oficial, página 2) -----------------------------
+
+/** MATERIAL NECESARIO según el manual de campo oficial. */
+export const FIELD_MATERIAL: string[] = [
+  "Identificación institucional",
+  "Libreta, lápiz o bolígrafo y tabla de apoyo",
+  "Dispositivo móvil con cámara e internet",
+  "Fisurómetro",
+  "Cinta métrica",
+  "Plomada de 60 cm",
+  "Martillo",
+  "Linterna",
+  "Líquidos para hidratación",
+  "Tapabocas y gel desinfectante",
+  "Etiquetas (verde, amarilla, roja)",
+];
+
+/** SEGURIDAD del inspector según el manual de campo oficial. */
+export const FIELD_SAFETY: string[] = [
+  "Cada inspector debe llevar casco, botas y lentes de seguridad, así como chaleco con cintas reflectantes y/o colores resaltantes.",
+  "Antes de entrar a la edificación, recorra el perímetro y verifique que no haya peligro de derrumbe.",
+  "Evite exponerse o colocarse debajo de objetos en peligro de caer.",
+  "No toque ni se exponga a cables de energía eléctrica.",
+  "Si huele a gas: contacte al propietario y cierre la fuente de gas, notifique a los bomberos, desaloje y acordone el lugar.",
 ];

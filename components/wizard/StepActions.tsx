@@ -43,6 +43,7 @@ export function StepActions({ insp, update, finalize }: StepProps) {
             {
               inspectorId: profile?.id ?? null,
               fullName: profile?.fullName ?? "",
+              nationalId: profile?.nationalId ?? null,
               isLead: true,
               signatureDataUrl: null,
             },
@@ -172,6 +173,14 @@ export function StepActions({ insp, update, finalize }: StepProps) {
                     onChange={(v) => setPerson(idx, { fullName: v })}
                   />
                 </Field>
+                <Field label="Cédula de identidad" help="La planilla oficial la solicita por inspector.">
+                  <PersonNameInput
+                    value={person.nationalId ?? ""}
+                    onChange={(v) => setPerson(idx, { nationalId: v })}
+                    placeholder="V-12.345.678"
+                    numeric
+                  />
+                </Field>
                 <Field label="Firma" required>
                   <DrawCanvas
                     heightClass="h-32"
@@ -220,7 +229,17 @@ export function StepActions({ insp, update, finalize }: StepProps) {
 }
 
 /** Input controlado local (no perder el cursor con el autoguardado). */
-function PersonNameInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function PersonNameInput({
+  value,
+  onChange,
+  placeholder = "Nombre del inspector",
+  numeric = false,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  numeric?: boolean;
+}) {
   const [text, setText] = useState(value);
   // Sincroniza si el prefill del perfil llega después del montaje (ajuste de
   // estado durante el render, patrón recomendado en vez de un effect).
@@ -232,11 +251,12 @@ function PersonNameInput({ value, onChange }: { value: string; onChange: (v: str
   return (
     <TextInput
       value={text}
+      inputMode={numeric ? "numeric" : undefined}
       onChange={(e) => {
         setText(e.target.value);
         onChange(e.target.value);
       }}
-      placeholder="Nombre del inspector"
+      placeholder={placeholder}
     />
   );
 }

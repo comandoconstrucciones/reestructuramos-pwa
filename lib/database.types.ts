@@ -685,6 +685,7 @@ export type Database = {
           inspection_id: string
           inspector_id: string | null
           is_lead: boolean | null
+          national_id: string | null
           signature_storage_path: string | null
           signed_at: string | null
         }
@@ -694,6 +695,7 @@ export type Database = {
           inspection_id: string
           inspector_id?: string | null
           is_lead?: boolean | null
+          national_id?: string | null
           signature_storage_path?: string | null
           signed_at?: string | null
         }
@@ -703,6 +705,7 @@ export type Database = {
           inspection_id?: string
           inspector_id?: string | null
           is_lead?: boolean | null
+          national_id?: string | null
           signature_storage_path?: string | null
           signed_at?: string | null
         }

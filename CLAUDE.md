@@ -56,7 +56,7 @@ Stack: **Next.js 16 (App Router) + React 19.2 + TypeScript + Tailwind v4 + Dexie
 - `/inspecciones` — mis inspecciones + estado de sync.
 - `/inspeccion/[clientUuid]` — resultado/cartel + PDF + QR.
 - `/edificio/[id]` — historial del edificio (destino del QR).
-- `/guia` — guía de campo offline.
+- `/guia` — guía de campo offline (patrones, árbol de decisión, glosario y **Metodología**: PDFs oficiales en `/public/docs` + material/seguridad del manual de campo).
 - `/admin` — dashboard: mapa semáforo, filtros (evento/municipio/fecha/sync), contadores y exports CSV/GeoJSON.
 - `/admin/importar` — importador del zip de QuickCheck Damage (JSZip + sql.js con `/sql-wasm.wasm` local → `quickcheck_import_staging`; requiere coordinador).
 

@@ -108,7 +108,7 @@ export async function buildPlanillaPdf(inspection: Inspection): Promise<Blob> {
     doc.rect(margin, y, contentW, h, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9.5);
+    doc.setFontSize(8.2);
     doc.text(`${num}. ${title}`, margin + 2, y + 4.4);
     y += h + 2.5;
   }
@@ -228,7 +228,7 @@ export async function buildPlanillaPdf(inspection: Inspection): Promise<Blob> {
   y += 5;
 
   // ---- 2. Inspección externa -------------------------------------------------
-  sectionHeader("2", "INSPECCIÓN EXTERNA (calificar sin ingresar)");
+  sectionHeader("2", "INSPECCIÓN EXTERNA (calificar sin ingresar a la edificación)");
   y += 2.5;
   const levels = externalAspectLevels(inspection);
   const extRows: { label: string; value: string; level?: string }[] = [
@@ -302,7 +302,7 @@ export async function buildPlanillaPdf(inspection: Inspection): Promise<Blob> {
   y += 5;
 
   // ---- 3. Piso crítico y daño Severo/Completo --------------------------------
-  sectionHeader("3", "PISO CRÍTICO Y DAÑO SEVERO/COMPLETO");
+  sectionHeader("3", "IDENTIFICACIÓN DEL PISO CRÍTICO Y ELEMENTOS ESTRUCTURALES CON DAÑO SEVERO/COMPLETO");
   y += 3;
   kv("Pisos inspeccionados", inspection.floorsInspected ?? "—", margin, col * 1.3);
   kv("Piso crítico", inspection.criticalFloor ?? "—", margin + col * 1.4, col - 3);
@@ -330,7 +330,7 @@ export async function buildPlanillaPdf(inspection: Inspection): Promise<Blob> {
   y += 5;
 
   // ---- 4. Daño moderado --------------------------------------------------------
-  sectionHeader("4", "RIESGO ESTRUCTURAL POR DAÑO MODERADO");
+  sectionHeader("4", "INSPECCIÓN DE ELEMENTOS ESTRUCTURALES PRINCIPALES CON DAÑO MODERADO EN EL PISO CRÍTICO");
   y += 2.5;
   {
     // Tabla: elemento | sin daño/menor | moderado | examinados | %
@@ -377,7 +377,7 @@ export async function buildPlanillaPdf(inspection: Inspection): Promise<Blob> {
   y += 5;
 
   // ---- 5. Componentes no estructurales -----------------------------------------
-  sectionHeader("5", "COMPONENTES NO ESTRUCTURALES");
+  sectionHeader("5", "INSPECCIÓN DE OTROS ELEMENTOS ESTRUCTURALES Y COMPONENTES NO ESTRUCTURALES");
   y += 2.5;
   for (const def of COMPONENT_DEFS) {
     const value = inspection[def.key];
@@ -403,7 +403,7 @@ export async function buildPlanillaPdf(inspection: Inspection): Promise<Blob> {
   y += 5;
 
   // ---- 6. Decisión final (semáforo) ---------------------------------------------
-  sectionHeader("6", "DECISIÓN FINAL — RIESGO GLOBAL Y ETIQUETA");
+  sectionHeader("6", "RIESGO ASOCIADO AL DAÑO Y RECOMENDACIÓN DE ACCESO");
   y += 2;
   {
     const boxW = (contentW - 8) / 3;
@@ -575,6 +575,9 @@ export async function buildPlanillaPdf(inspection: Inspection): Promise<Blob> {
       doc.setFontSize(8);
       muted();
       doc.text(person?.isLead ? "INSPECTOR LÍDER" : `INSPECTOR ${i + 1}`, x + 2, y + 4.5);
+      if (person?.nationalId) {
+        doc.text(`C.I. ${person.nationalId}`, x + boxW - 2, y + 4.5, { align: "right" });
+      }
       ink();
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9.5);
@@ -672,6 +675,18 @@ export function buildEtiquetaPdf(inspection: Inspection): Blob {
     "Inspección:",
     `${(inspection.completedAt ?? inspection.inspectedAt ?? "").slice(0, 10) || "—"} · Riesgo global: ${risk}`,
   );
+  // La metodología exige identificar a los inspectores en la etiqueta.
+  {
+    const roster = inspection.inspectors ?? [];
+    if (roster.length > 0) {
+      row(
+        "Inspectores:",
+        roster
+          .map((p) => [p.fullName, p.nationalId ? `C.I. ${p.nationalId}` : null].filter(Boolean).join(" — "))
+          .join(" · "),
+      );
+    }
+  }
 
   // Instrucción según etiqueta
   y += 2;

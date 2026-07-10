@@ -190,6 +190,7 @@ async function pushInspection(insp: Inspection, uid: string): Promise<void> {
       inspection_id: string;
       inspector_id: string | null;
       full_name: string | null;
+      national_id: string | null;
       signature_storage_path: string | null;
       signed_at: string | null;
       is_lead: boolean;
@@ -212,6 +213,7 @@ async function pushInspection(insp: Inspection, uid: string): Promise<void> {
         inspection_id: insp.clientUuid,
         inspector_id: person.isLead ? uid : (person.inspectorId ?? null),
         full_name: person.fullName || null,
+        national_id: person.nationalId || null,
         signature_storage_path: sigPath,
         signed_at: person.signedAt ?? null,
         is_lead: person.isLead,

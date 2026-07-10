@@ -11,11 +11,13 @@ import { DAMAGE_PATTERNS } from "@/lib/catalog";
 import { DamagePatternCard } from "@/components/guide/DamagePatternCard";
 import { DecisionTree } from "@/components/guide/DecisionTree";
 import { Glossary } from "@/components/guide/Glossary";
+import { Methodology } from "@/components/guide/Methodology";
 
 const TABS = [
-  { id: "patrones", label: "Patrones de daño" },
-  { id: "arbol", label: "Árbol de decisión" },
+  { id: "patrones", label: "Patrones" },
+  { id: "arbol", label: "Decisión" },
   { id: "glosario", label: "Glosario" },
+  { id: "metodologia", label: "Metodología" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -48,7 +50,7 @@ export default function GuiaPage() {
         <div
           role="tablist"
           aria-label="Secciones de la guía"
-          className="sticky top-14 z-10 grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1"
+          className="sticky top-14 z-10 grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1"
         >
           {TABS.map((t) => {
             const active = tab === t.id;
@@ -90,6 +92,12 @@ export default function GuiaPage() {
         {tab === "glosario" && (
           <section aria-label="Glosario">
             <Glossary />
+          </section>
+        )}
+
+        {tab === "metodologia" && (
+          <section aria-label="Metodología oficial">
+            <Methodology />
           </section>
         )}
       </div>

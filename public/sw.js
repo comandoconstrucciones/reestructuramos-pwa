@@ -5,7 +5,7 @@
  *  - Tiles OSM: CacheFirst con expiración suave.
  *  - Supabase (API/Storage/Auth): se deja pasar a la red (los datos viven en IndexedDB).
  */
-const VERSION = "v3";
+const VERSION = "v4";
 const SHELL = `reestructuramos-shell-${VERSION}`;
 const STATIC = `reestructuramos-static-${VERSION}`;
 const TILES = `reestructuramos-tiles-${VERSION}`;
@@ -19,6 +19,8 @@ const APP_SHELL = [
   "/inspecciones",
   "/guia",
   "/admin",
+  // Planilla oficial FUNVISIS: el documento crítico de campo, disponible offline.
+  "/docs/planilla-oficial-funvisis.pdf",
   "/offline.html",
   "/manifest.webmanifest",
   "/icon-192.png",

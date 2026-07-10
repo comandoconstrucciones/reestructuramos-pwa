@@ -151,6 +151,8 @@ export interface CoInspector {
   /** uid de Supabase si es el inspector autenticado (líder). */
   inspectorId?: string | null;
   fullName: string;
+  /** Cédula de identidad (la planilla oficial la pide por inspector). */
+  nationalId?: string | null;
   /** Firma dibujada (dataURL PNG); se sube a Storage al sincronizar. */
   signatureDataUrl?: string | null;
   /** Ruta en Storage tras subir. */

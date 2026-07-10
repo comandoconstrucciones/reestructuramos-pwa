@@ -231,22 +231,25 @@ export function placardToRisk(placard: Placard): RiskLevel | null {
   }
 }
 
-/** Textos oficiales de la etiqueta FUNVISIS (semáforo de la Sección 6). */
+/** Etiquetas de la Sección 6. Sublabels = recomendación de acceso OFICIAL de
+ *  la planilla (Acceso permitido / restringido / no permitido). */
 export const FUNVISIS_PLACARD_META: Record<
   RiskLevel,
   { label: string; sublabel: string; atc20: "INSPECTED" | "RESTRICTED" | "UNSAFE"; color: string }
 > = {
   A: { label: "HABITABLE", sublabel: "Acceso permitido", atc20: "INSPECTED", color: "#16a34a" },
-  B: { label: "ATENCIÓN", sublabel: "Uso restringido", atc20: "RESTRICTED", color: "#d97706" },
-  C: { label: "PELIGRO", sublabel: "No entre ni ocupe", atc20: "UNSAFE", color: "#dc2626" },
+  B: { label: "ATENCIÓN", sublabel: "Acceso restringido", atc20: "RESTRICTED", color: "#d97706" },
+  C: { label: "PELIGRO", sublabel: "Acceso no permitido", atc20: "UNSAFE", color: "#dc2626" },
 };
 
-/** Nota oficial al pie de la decisión (planilla, Sección 6). */
+/** NOTA IMPORTANTE oficial (pie de la planilla) + advertencia de las etiquetas. */
 export const FUNVISIS_DISCLAIMER =
-  "Pueden existir situaciones no previstas que se escapan al alcance de esta " +
-  "inspección, la cual se sustenta en la información disponible y en la " +
-  "experticia de los inspectores. Esta decisión no garantiza la seguridad de " +
-  "la edificación ante eventos futuros adversos.";
+  "NOTA IMPORTANTE: Pueden existir situaciones no previstas que se escapan al " +
+  "alcance de esta inspección. El responsable de la edificación y sus residentes " +
+  "deben solicitar hacer los estudios adicionales y reparaciones requeridas. Las " +
+  "condiciones de estabilidad de la edificación pueden cambiar y en dicho caso " +
+  "deberán pedir una nueva evaluación a las autoridades. Esta decisión no " +
+  "garantiza la seguridad ante eventos futuros adversos.";
 
 export interface FunvisisInput {
   external: ExternalInspection;
