@@ -1,6 +1,6 @@
 "use client";
 // Paso 1 — Información General (planilla FUNVISIS, Sección 1 + encabezado).
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardTitle, Field, OptionGrid, TextInput, Toggle } from "@/components/ui";
 import {
   EVENT_TYPE_OPTIONS,
@@ -27,6 +27,24 @@ export function StepGeneral({ insp, update, finalize }: StepProps) {
   function setBuilding(patch: Partial<Building>) {
     update((cur) => ({ building: { ...cur.building, ...patch } }));
   }
+
+  // Defaults concretos de UNA sola vez: si el inspector no toca los contadores,
+  // el valor mostrado debe PERSISTIRSE igual (si no, la validación bloquea).
+  useEffect(() => {
+    update((cur) => {
+      const cb = cur.building;
+      if (cb.nStoriesAbove != null && cb.nStoriesBelow != null && cb.nSemiBasements != null) return {};
+      return {
+        building: {
+          ...cb,
+          nStoriesAbove: cb.nStoriesAbove ?? 1,
+          nStoriesBelow: cb.nStoriesBelow ?? 0,
+          nSemiBasements: cb.nSemiBasements ?? 0,
+        },
+      };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const startedAt = new Date(insp.createdAt);
 
